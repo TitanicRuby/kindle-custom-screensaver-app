@@ -83,8 +83,12 @@ Under the hood: it detects the most common color along the photo's own border (b
 
 ### Quality
 
-- **No dither** (default) — flat, direct mapping to the nearest of 16 evenly-spaced grayscale levels.
-- **Dithered** — Floyd-Steinberg error diffusion, reduces visible banding on gradients at the cost of a slightly noisier look.
+Four dithering options, all mapping to the same fixed 16-level grayscale palette:
+
+- **No dither** (default) — direct color mapping, no grain. Clean, but gradients may show visible banding.
+- **Floyd-Steinberg** — smooths gradients by scattering rounding error into neighboring pixels. Some fine grain, less banding.
+- **Atkinson** — classic Macintosh-style dithering. Only 3/4 of the rounding error is diffused (to 6 neighboring pixels) instead of the full amount like Floyd-Steinberg — the discarded remainder gives it higher contrast and punchier black/white, at the cost of some shadow/highlight detail.
+- **Bayer / ordered** — uses a fixed repeating 4×4 threshold matrix to decide each pixel's rounding direction, instead of diffusing error to neighbors. Produces a regular repeating crosshatch pattern rather than organic noise — a distinct retro/8-bit look. No error propagation, so it's the cheapest to compute.
 
 ---
 

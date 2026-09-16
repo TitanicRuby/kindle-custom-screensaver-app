@@ -143,6 +143,11 @@ input[type="file"] {
   margin: 0;
 }
 
+.radio-group .option-hint {
+  margin: -4px 0 10px 24px;
+  font-size: 0.85rem;
+}
+
 .sub-options {
   margin-top: 10px;
   padding: 10px 12px;
@@ -366,7 +371,16 @@ button.secondary {
     <h2>6. Quality</h2>
     <div class="radio-group">
       <label><input type="radio" name="dither" value="none" checked> No dither (flat, crisp)</label>
-      <label><input type="radio" name="dither" value="floyd-steinberg"> Dithered (Floyd-Steinberg, reduces banding)</label>
+      <p class="hint option-hint">Direct color mapping, no grain. Clean, but gradients may show visible banding.</p>
+
+      <label><input type="radio" name="dither" value="floyd-steinberg"> Floyd-Steinberg</label>
+      <p class="hint option-hint">Smooths gradients by scattering rounding error into neighboring pixels. Some fine grain, less banding.</p>
+
+      <label><input type="radio" name="dither" value="atkinson"> Atkinson</label>
+      <p class="hint option-hint">Classic Macintosh-style dithering. Higher contrast, punchier black/white, less shadow/highlight detail.</p>
+
+      <label><input type="radio" name="dither" value="bayer"> Bayer / ordered</label>
+      <p class="hint option-hint">Fixed repeating pattern instead of scattered noise. Distinct retro/8-bit crosshatch look.</p>
     </div>
   </section>
 
@@ -446,6 +460,13 @@ const DEVICES = [
 
 const PALETTE_STEP = 17; // 255 / 15 levels -> 16 evenly spaced values: 0,17,34,...255
 const MANUAL_PREVIEW_MAX_DIM = 800;
+// Standard 4x4 Bayer ordered-dithering threshold matrix (values 0-15).
+const BAYER_4X4 = [
+  0, 8, 2, 10,
+  12, 4, 14, 6,
+  3, 11, 1, 9,
+  15, 7, 13, 5,
+];
 
 // --- DOM refs ---
 const fileInput = document.getElementById('fileInput');
@@ -866,6 +887,39 @@ function applyGrayscalePalette(imageData, dither, hasAlpha) {
           gray[idx + width] += err * 5 / 16;
           if (x + 1 < width) gray[idx + width + 1] += err * 1 / 16;
         }
+      }
+    }
+  } else if (dither === 'atkinson') {
+    // Atkinson: only 6/8 of the error is diffused (3/4 total, not the full
+    // amount) - the discarded remainder is what gives it a higher-contrast,
+    // punchier look than Floyd-Steinberg at the cost of shadow/highlight detail.
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const idx = y * width + x;
+        const oldVal = gray[idx];
+        const newVal = quantize(oldVal);
+        gray[idx] = newVal;
+        const err = (oldVal - newVal) / 8;
+        if (x + 1 < width) gray[idx + 1] += err;
+        if (x + 2 < width) gray[idx + 2] += err;
+        if (y + 1 < height) {
+          if (x > 0) gray[idx + width - 1] += err;
+          gray[idx + width] += err;
+          if (x + 1 < width) gray[idx + width + 1] += err;
+        }
+        if (y + 2 < height) gray[idx + 2 * width] += err;
+      }
+    }
+  } else if (dither === 'bayer') {
+    // Ordered dithering: a fixed repeating threshold matrix nudges each pixel
+    // up or down before quantizing, instead of diffusing error to neighbors -
+    // no dependency between pixels, so this is cheap and gives a regular
+    // repeating pattern rather than organic noise.
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const idx = y * width + x;
+        const threshold = (BAYER_4X4[(y % 4) * 4 + (x % 4)] + 0.5) / 16 - 0.5;
+        gray[idx] = quantize(gray[idx] + threshold * PALETTE_STEP);
       }
     }
   } else {

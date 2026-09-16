@@ -47,9 +47,9 @@ Upload photo(s) → pick your device's screen size → pick a crop mode → opti
 | Kindle (11th Gen) | 1072×1448 |
 | Kindle Paperwhite (10th Gen) | 1072×1448 |
 | Kindle Paperwhite (11th Gen) | 1236×1648 |
-| Kindle Paperwhite (12th Gen) | 1264×1680 |
+| Kindle Paperwhite (12th Gen) | 1272×1696* |
 | Kindle Oasis (3rd Gen) | 1264×1680 |
-| Kindle Colorsoft | 1264×1680 |
+| Kindle Colorsoft | 1272×1696* |
 | Kindle Scribe | 1860×2480 |
 | Kobo Nia | 758×1024 |
 | Kobo Clara BW / Clara 2E / Clara Colour | 1072×1448 |
@@ -58,6 +58,8 @@ Upload photo(s) → pick your device's screen size → pick a crop mode → opti
 | Kobo Elipsa 2E | 1404×1872 |
 | reMarkable 2 | 1404×1872 |
 | reMarkable Paper Pro | 1620×2160 |
+
+\* Commonly reported elsewhere as 1264×1680 (derived from Amazon's rounded "7-inch, 300 PPI" marketing spec). The actual panel resolution, verified directly from device screenshots, is 1272×1696 — Amazon rounds the advertised screen size down (the real panel is 7.06", not 7.00"). This mismatch originated from a single review site and was subsequently repeated across CNET, Wikipedia, Reddit, and other open-source projects before being corrected here following community verification.
 
 Not on the list, or a resolution changed in a firmware update? Use **Custom size** in the device dropdown. PRs adding/correcting devices are welcome.
 

@@ -86,19 +86,6 @@ Under the hood: it detects the most common color along the photo's own border (b
 
 ---
 
-## Deploying to GitHub Pages
-
-Since this tool lives at the repo root, the built-in GitHub Pages setup works directly — no build step, no GitHub Actions workflow needed:
-
-1. In the repo, go to **Settings → Pages**.
-2. Under **Source**, choose **Deploy from a branch**.
-3. Pick the `main` branch and the `/ (root)` folder, then **Save**.
-4. GitHub publishes it at `https://<username>.github.io/<repo-name>/` within a minute or two — the exact URL is shown on that same Settings page once it's live.
-
-That's the whole setup — any future push to `main` updates the live page automatically.
-
----
-
 ## Third-party code (vendored, not CDN-loaded)
 
 Both are inlined into `index.html` (see [Single file](#e-reader-screensaver-converter) above) so the tool has zero runtime network dependencies. Unmodified original copies are kept under `vendor/` purely for license/attribution reference — they aren't loaded by the page:

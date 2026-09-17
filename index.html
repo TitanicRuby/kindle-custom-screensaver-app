@@ -807,6 +807,22 @@ function drawManualCrop(ctx, img, tw, th, ratio) {
   ctx.drawImage(img, sx, sy, sw, sh, 0, 0, tw, th);
 }
 
+// Kindle/KOReader (and e-ink image display generally) read raw RGB and ignore alpha
+// entirely - a "transparent" pixel with RGB left at whatever the canvas defaulted to
+// (0,0,0) renders as solid black on-device instead of blending with anything. Call this
+// wherever a pixel's alpha is set to 0, so alpha-ignorant renderers fall back to white -
+// alpha-aware viewers are unaffected since they still see alpha=0.
+function whitenTransparentPixels(imageData) {
+  const data = imageData.data;
+  for (let i = 0; i < data.length; i += 4) {
+    if (data[i + 3] === 0) {
+      data[i] = 255;
+      data[i + 1] = 255;
+      data[i + 2] = 255;
+    }
+  }
+}
+
 // --- Background removal: detect the most common color along the content rect's own border,
 // flood-fill inward from that border, turn matching pixels transparent. Only reliable on
 // plain/uniform backgrounds - a subject touching the border, or a busy background, will leak
@@ -953,10 +969,14 @@ async function convertOne(file, targetW, targetH, cropMode, padStyle, manualRati
   }
 
   const imageData = ctx.getImageData(0, 0, targetW, targetH);
+  // Padding's transparent area is the canvas's untouched default (0,0,0,0) - whiten its
+  // RGB now so alpha-ignorant renderers (Kindle/KOReader) show white, not black.
+  if (hasAlpha) whitenTransparentPixels(imageData);
 
   if (bgRemove && bgRemove.enabled) {
     removeFlatBackground(imageData, contentRect, bgRemove.tolerance);
     hasAlpha = true;
+    whitenTransparentPixels(imageData);
   }
 
   applyGrayscalePalette(imageData, dither, hasAlpha);

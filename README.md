@@ -94,7 +94,7 @@ Four dithering options, all mapping to the same fixed 16-level grayscale palette
 
 Scan to buy me a coffee:
 
-![Buy Me a Coffee QR code](qr-code.png)
+!<img src="qr-code.png" alt="Buy Me a Coffee QR code" width="200">
 
 ---
 
